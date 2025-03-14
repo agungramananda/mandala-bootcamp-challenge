@@ -62,6 +62,7 @@ After learning about Substrate, FRAME, Runtime, and Pallets in Polkadot SDK, thi
 ### Project Structure
 
 This challenge simulates three core components:
+
 - `system.rs`: Foundation module similar to `frame_system`
 - `staking.rs`: Token staking module similar to `pallet_staking`
 - `governance.rs`: On-chain proposal system similar to `pallet_collective` or `pallet_democracy`
@@ -94,3 +95,8 @@ OpenGuild is a builder-driven community centered around Polkadot. OpenGuild is b
 - **Website:** [OpenGuild Website](https://openguild.wtf/)
 - **Github:** [OpenGuild Labs](https://github.com/openguild-labs)
 - **Discord**: [Openguild Discord Channel](https://discord.gg/bcjMzxqtD7)
+
+## Participant Registration
+
+| 🦄 | Name | Github username | Your current occupation |
+| 🦄 | I Gusti Agung Ramananda Wira Dharma | [agungramananda](https://github.com/agungramananda) | Computer Science Student |
