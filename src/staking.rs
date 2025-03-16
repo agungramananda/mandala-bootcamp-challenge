@@ -16,32 +16,61 @@ pub struct StakingPallet<T: StakingConfig> {
 
 impl<T: StakingConfig> StakingPallet<T> {
     pub fn new() -> Self {
-        todo!()
+        Self {
+            free_balances: HashMap::new(),
+            staked_balances: HashMap::new(),
+        }
     }
 
     // Set free balance for an account
     pub fn set_balance(&mut self, who: T::AccountId, amount: T::Balance) {
-        todo!()
+        self.free_balances.insert(who,amount);
     }
 
     // Stake tokens (move from free to staked)
     pub fn stake(&mut self, who: T::AccountId, amount: T::Balance) -> Result<(), &'static str> {
-        todo!()
+        let user_free_balance = self.free_balances.get(&who).copied().unwrap_or_else(Zero::zero);
+        let user_stacked_balance = self.staked_balances.get(&who).copied().unwrap_or_else(Zero::zero);
+
+        if user_free_balance.checked_sub(&amount).is_none() {
+            return Err("Not enough free balance to stake");
+        }        
+
+        let new_free_balance = user_free_balance - amount;
+        let new_stacked_balance = user_stacked_balance + amount;
+
+        self.free_balances.insert(who.clone(), new_free_balance);
+        self.staked_balances.insert(who, new_stacked_balance);
+
+        Ok(())
     }
 
     // Unstake tokens (move from staked to free)
     pub fn unstake(&mut self, who: T::AccountId, amount: T::Balance) -> Result<(), &'static str> {
-        todo!()
+        let user_free_balance = self.free_balances.get(&who).copied().unwrap_or_else(Zero::zero);
+        let user_stacked_balance = self.staked_balances.get(&who).copied().unwrap_or_else(Zero::zero);
+
+        if user_stacked_balance.checked_sub(&amount).is_none() {
+            return Err("Not enough stacked balance to unstake");
+        }
+
+        let new_free_balance = user_free_balance + amount;
+        let new_stacked_balance = user_stacked_balance - amount;
+
+        self.staked_balances.insert(who.clone(), new_stacked_balance);
+        self.free_balances.insert(who, new_free_balance);
+
+        Ok(())
     }
 
     // Get free balance for an account
     pub fn get_free_balance(&self, who: T::AccountId) -> T::Balance {
-        todo!()
+        self.free_balances.get(&who).copied().unwrap_or_else(Zero::zero)
     }
 
     // Get staked balance for an account
     pub fn get_staked_balance(&self, who: T::AccountId) -> T::Balance {
-        todo!()
+        self.staked_balances.get(&who).copied().unwrap_or_else(Zero::zero)
     }
 }
 

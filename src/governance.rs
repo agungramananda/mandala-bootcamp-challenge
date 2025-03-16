@@ -11,7 +11,7 @@ pub struct Proposal {
     status: ProposalStatus,
 }
 
-#[derive(Clone)]
+#[derive(Clone,PartialEq)]
 pub enum ProposalStatus {
     Active,
     Approved,
@@ -26,7 +26,11 @@ pub struct GovernancePallet<T: GovernanceConfig> {
 
 impl<T: GovernanceConfig> GovernancePallet<T> {
     pub fn new() -> Self {
-        todo!()
+        Self {
+            proposals : HashMap::new(),
+            votes : HashMap::new(),
+            next_proposal_id: 0,
+        }
     }
 
     // Create a new proposal
@@ -35,7 +39,18 @@ impl<T: GovernanceConfig> GovernancePallet<T> {
         creator: T::AccountId,
         description: String,
     ) -> Result<u32, &'static str> {
-        todo!()
+        let proposal_id = self.next_proposal_id;
+        let new_proposal = Proposal {
+            description,
+            yes_votes : 0,
+            no_votes : 0,
+            status : ProposalStatus::Active,
+        };
+
+        self.proposals.insert(proposal_id, new_proposal);
+        self.next_proposal_id += 1;
+
+        Ok(proposal_id)
     }
 
     // Vote on a proposal (true = yes, false = no)
@@ -45,17 +60,50 @@ impl<T: GovernanceConfig> GovernancePallet<T> {
         proposal_id: u32,
         vote_type: bool,
     ) -> Result<(), &'static str> {
-        todo!()
+        if !self.proposals.contains_key(&proposal_id){
+            return Err("Proposal not found");
+        }
+
+        if self.votes.contains_key(&(voter.clone(), proposal_id)){
+            return Err("Has already voted on this proposal");
+        }
+
+        let proposal = self.proposals.get_mut(&proposal_id).unwrap();
+
+        if vote_type {
+            proposal.yes_votes += 1;
+        } else {
+            proposal.no_votes += 1;
+        }
+
+        self.votes.insert((voter,proposal_id), vote_type);
+        Ok(())
     }
 
     // Get proposal details
     pub fn get_proposal(&self, proposal_id: u32) -> Option<&Proposal> {
-        todo!()
+        self.proposals.get(&proposal_id)
     }
 
     // Finalize a proposal (changes status based on votes)
     pub fn finalize_proposal(&mut self, proposal_id: u32) -> Result<ProposalStatus, &'static str> {
-        todo!()
+        if !self.proposals.contains_key(&proposal_id){
+            return Err("Proposal not found");
+        }
+
+        let proposal = self.proposals.get_mut(&proposal_id).unwrap();
+
+        if proposal.status != ProposalStatus::Active {
+            return Err("Proposal is not active and already finalized");
+        }
+
+        if proposal.yes_votes > proposal.no_votes {
+            proposal.status = ProposalStatus::Approved;
+        } else {
+            proposal.status = ProposalStatus::Rejected;
+        }
+
+        Ok(proposal.status.clone())
     }
 }
 
